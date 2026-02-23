@@ -1,6 +1,6 @@
 'use client';
 
-import { PropsWithChildren, useLayoutEffect } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 
 const initializeMSWOnClient = async () => {
   const { setupWorker } = await import('msw/browser');
@@ -30,7 +30,7 @@ const initializeMSWOnClient = async () => {
 
   const worker = setupWorker(...handlers);
 
-  return worker.start({
+  await worker.start({
     onUnhandledRequest: MSWIgnoreDevResources,
     serviceWorker: {
       url: '/mockServiceWorker.js',
@@ -39,11 +39,15 @@ const initializeMSWOnClient = async () => {
 };
 
 export const MSWClientSideProvider = ({ children }: PropsWithChildren) => {
-  useLayoutEffect(() => {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      initializeMSWOnClient();
+      initializeMSWOnClient().then(() => setIsReady(true));
     }
   }, []);
+
+  if (!isReady) return null;
 
   return <>{children}</>;
 };
