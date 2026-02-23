@@ -1,6 +1,8 @@
 import Image from 'next/image';
 
 export default function HeaderImage({ image }: { image: string }) {
+  if (!image) return null;
+
   return (
     <div className='relative w-full'>
       <Image
