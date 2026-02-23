@@ -1,0 +1,19 @@
+commit-msg:
+  jobs:
+    - run: npx commitlint --edit {1}
+      stage_fixed: true
+
+pre-commit:
+  parallel: true
+  jobs:
+    - run: node scripts/lint-with-file-prefix.js {staged_files}
+      glob: '*.{js,jsx,ts,tsx}'
+      stage_fixed: true
+    - run: yarn prettier --check {staged_files}
+      glob: '*.{css,json,md}'
+      stage_fixed: true
+
+pre-push:
+  jobs:
+    - run: yarn build
+      stage_fixed: true

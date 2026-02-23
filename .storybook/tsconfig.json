@@ -1,0 +1,6 @@
+{
+  // NOTE: Storybook Vite Bundler에서 루트의 tsconfig를 자동으로 상속하지 않아 명시적으로 상속
+  // 절대 경로 설정을 상속하기 위함
+  "extends": "../tsconfig.json",
+  "include": ["*.ts", "*.tsx"]
+}

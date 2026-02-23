@@ -1,0 +1,36 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always"
+  },
+  "editor.tabSize": 2,
+  "eslint.enable": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["(?<=cva\\([\\s\\S]*?)[\"']([^\"']+)[\"']"], // @see https://github.com/tailwindlabs/tailwindcss-intellisense/issues/1032#issuecomment-2575812786
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.next/**"
+  ],
+  "tailwindCSS.experimental.configFile": "./app/globals.css", // NOTE: 루트 폴더 기준 상대 경로
+  "[javascript]": {
+    "editor.defaultFormatter": null
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": null
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": null
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": null
+  }
+}
