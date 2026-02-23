@@ -2,19 +2,23 @@
 
 import { PropsWithChildren, useLayoutEffect } from 'react';
 
-import { setupWorker } from 'msw/browser';
+const initializeMSWOnClient = async () => {
+  const { setupWorker } = await import('msw/browser');
+  const [
+    { festivalHandlers },
+    { authHandlers },
+    { mypageHandlers },
+    { searchHandlers },
+    { batchHandlers },
+  ] = await Promise.all([
+    import('@/mocks/api/festivalMock'),
+    import('@/mocks/api/authMock'),
+    import('@/mocks/api/mypageMock'),
+    import('@/mocks/api/searchMock'),
+    import('@/mocks/api/batchMock'),
+  ]);
+  const { MSWIgnoreDevResources, globalDelay } = await import('./MSWConfig');
 
-import {
-  authHandlers,
-  batchHandlers,
-  festivalHandlers,
-  mypageHandlers,
-  searchHandlers,
-} from '@/mocks/api';
-
-import { MSWIgnoreDevResources, globalDelay } from './MSWConfig';
-
-const initializeMSWOnClient = () => {
   const handlers = [
     globalDelay,
     ...festivalHandlers,
@@ -35,9 +39,10 @@ const initializeMSWOnClient = () => {
 };
 
 export const MSWClientSideProvider = ({ children }: PropsWithChildren) => {
-  // NOTE: 모든 자식 useEffect 보다 우선 호출
   useLayoutEffect(() => {
-    initializeMSWOnClient();
+    if (typeof window !== 'undefined') {
+      initializeMSWOnClient();
+    }
   }, []);
 
   return <>{children}</>;
