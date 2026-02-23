@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker/locale/ko';
 import { HttpResponse, http } from 'msw';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 const wrapResponse = <T>(data: T) => ({
   success: true,
@@ -24,7 +23,7 @@ const createPagedResponse = <T>(content: T[], page = 0, size = 20) => ({
 
 export const mypageHandlers = [
   // 사용자 정보 변경
-  http.patch(`${BASE_URL}/api/v1/mypage/me`, ({ request }) => {
+  http.patch(`*/api/v1/mypage/me`, ({ request }) => {
     const url = new URL(request.url);
     const nickname = url.searchParams.get('nickname') || '새닉네임';
     return HttpResponse.json(
@@ -37,7 +36,7 @@ export const mypageHandlers = [
   }),
 
   // 리뷰 목록 조회
-  http.get(`${BASE_URL}/api/v1/mypage/reviews`, ({ request }) => {
+  http.get(`*/api/v1/mypage/reviews`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '20');
@@ -57,12 +56,12 @@ export const mypageHandlers = [
   }),
 
   // 리뷰 삭제
-  http.delete(`${BASE_URL}/api/v1/mypage/reviews/:reviewId`, () => {
+  http.delete(`*/api/v1/mypage/reviews/:reviewId`, () => {
     return HttpResponse.json(wrapResponse(null));
   }),
 
   // 북마크 취소
-  http.delete(`${BASE_URL}/api/v1/mypage/bookmarks/:festivalId`, () => {
+  http.delete(`*/api/v1/mypage/bookmarks/:festivalId`, () => {
     return HttpResponse.json(wrapResponse(null));
   }),
 ];

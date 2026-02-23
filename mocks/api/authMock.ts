@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker/locale/ko';
 import { HttpResponse, http } from 'msw';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 const wrapResponse = <T>(data: T) => ({
   success: true,
@@ -13,7 +12,7 @@ const wrapResponse = <T>(data: T) => ({
 
 export const authHandlers = [
   // OAuth 인가 코드 로그인
-  http.post(`${BASE_URL}/api/v1/auth/oauth/login/:provider`, () => {
+  http.post(`*/api/v1/auth/oauth/login/:provider`, () => {
     return HttpResponse.json(
       wrapResponse({
         accessToken: faker.string.alphanumeric(128),
@@ -27,7 +26,7 @@ export const authHandlers = [
   }),
 
   // 토큰 연장
-  http.post(`${BASE_URL}/api/v1/auth/refresh`, () => {
+  http.post(`*/api/v1/auth/refresh`, () => {
     return HttpResponse.json(
       wrapResponse({
         accessToken: faker.string.alphanumeric(128),
@@ -41,7 +40,7 @@ export const authHandlers = [
   }),
 
   // 사용자 정보 조회
-  http.get(`${BASE_URL}/api/v1/auth/me`, () => {
+  http.get(`*/api/v1/auth/me`, () => {
     return HttpResponse.json(
       wrapResponse({
         userId: faker.number.int({ min: 1, max: 9999 }),

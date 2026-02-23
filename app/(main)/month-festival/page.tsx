@@ -5,9 +5,13 @@ import FestivalCard from './_modules/festival-card';
 import HeaderImage from './_modules/header-image';
 
 export default async function MonthFestivalPage() {
-  const { data } = await monthlyTopFestival();
-
-  const festivals = data?.content ?? [];
+  let festivals: any[] = [];
+  try {
+    const { data } = await monthlyTopFestival();
+    festivals = data?.content ?? [];
+  } catch (e) {
+    console.error('monthlyTopFestival error:', e);
+  }
 
   const staticData = () => {
     const currentMonth = String(new Date().getMonth() + 1);

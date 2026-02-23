@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker/locale/ko';
 import { HttpResponse, http } from 'msw';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 const wrapResponse = <T>(data: T) => ({
   success: true,
@@ -13,7 +12,7 @@ const wrapResponse = <T>(data: T) => ({
 
 export const searchHandlers = [
   // 인기 검색어 조회
-  http.get(`${BASE_URL}/api/v1/search/keywords/top`, ({ request }) => {
+  http.get(`*/api/v1/search/keywords/top`, ({ request }) => {
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get('limit') || '10');
     const keywords = Array.from({ length: Math.min(limit, 10) }, () => ({

@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker/locale/ko';
 import { HttpResponse, http } from 'msw';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 // 테마 목록
 const THEMES = ['CULTURE_ART', 'FOOD', 'MUSIC', 'NATURE', 'TRADITION'] as const;
@@ -59,7 +58,7 @@ const wrapResponse = <T>(data: T) => ({
 
 export const festivalHandlers = [
   // 축제 리스트 조회 - 지도 페이지
-  http.get(`${BASE_URL}/api/v1/festivals/map`, ({ request }) => {
+  http.get(`*/api/v1/festivals/map`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '100');
@@ -70,7 +69,7 @@ export const festivalHandlers = [
   }),
 
   // 축제 리스트 조회 - 달력 페이지
-  http.get(`${BASE_URL}/api/v1/festivals/calendar`, ({ request }) => {
+  http.get(`*/api/v1/festivals/calendar`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '20');
@@ -81,7 +80,7 @@ export const festivalHandlers = [
   }),
 
   // 축제 달력 일별 개수 조회
-  http.get(`${BASE_URL}/api/v1/festivals/calendar/daily-count`, ({ request }) => {
+  http.get(`*/api/v1/festivals/calendar/daily-count`, ({ request }) => {
     const url = new URL(request.url);
     const startDate = url.searchParams.get('startDate') || '2026-02-01';
     const endDate = url.searchParams.get('endDate') || '2026-02-28';
@@ -102,7 +101,7 @@ export const festivalHandlers = [
   }),
 
   // 축제 리스트 조회 - 검색 페이지
-  http.get(`${BASE_URL}/api/v1/festivals/search`, ({ request }) => {
+  http.get(`*/api/v1/festivals/search`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '20');
@@ -113,7 +112,7 @@ export const festivalHandlers = [
   }),
 
   // 축제 리스트 조회 - 맞춤 축제 페이지
-  http.get(`${BASE_URL}/api/v1/festivals/personal-test`, ({ request }) => {
+  http.get(`*/api/v1/festivals/personal-test`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '20');
@@ -124,7 +123,7 @@ export const festivalHandlers = [
   }),
 
   // 축제 리스트 조회 - 마이페이지
-  http.get(`${BASE_URL}/api/v1/festivals/mypage`, ({ request }) => {
+  http.get(`*/api/v1/festivals/mypage`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '20');
@@ -136,7 +135,7 @@ export const festivalHandlers = [
   }),
 
   // 이달의 인기 축제
-  http.get(`${BASE_URL}/api/v1/festivals/monthly-top`, () => {
+  http.get(`*/api/v1/festivals/monthly-top`, () => {
     const festivals = Array.from({ length: faker.number.int({ min: 3, max: 10 }) }, () => {
       const summary = createFestivalSummary();
       return {
@@ -152,7 +151,7 @@ export const festivalHandlers = [
   }),
 
   // 축제 상세 조회
-  http.get(`${BASE_URL}/api/v1/festivals/:festivalId`, ({ params }) => {
+  http.get(`*/api/v1/festivals/:festivalId`, ({ params }) => {
     const festivalId = Number(params.festivalId);
     const detail = {
       id: festivalId,
@@ -199,7 +198,7 @@ export const festivalHandlers = [
   }),
 
   // 축제 리뷰 목록 조회
-  http.get(`${BASE_URL}/api/v1/festivals/:festivalId/reviews`, ({ request }) => {
+  http.get(`*/api/v1/festivals/:festivalId/reviews`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '20');
@@ -214,19 +213,19 @@ export const festivalHandlers = [
   }),
 
   // 리뷰 등록
-  http.post(`${BASE_URL}/api/v1/festivals/:festivalId/reviews`, () => {
+  http.post(`*/api/v1/festivals/:festivalId/reviews`, () => {
     return HttpResponse.json(
       wrapResponse(faker.number.int({ min: 1, max: 9999 })),
     );
   }),
 
   // 북마크 저장
-  http.post(`${BASE_URL}/api/v1/festivals/:festivalId/bookmarks`, ({ params }) => {
+  http.post(`*/api/v1/festivals/:festivalId/bookmarks`, ({ params }) => {
     return HttpResponse.json(wrapResponse(Number(params.festivalId)));
   }),
 
   // 여행 코스 조회
-  http.get(`${BASE_URL}/api/v1/festivals/:festivalId/travel-courses`, () => {
+  http.get(`*/api/v1/festivals/:festivalId/travel-courses`, () => {
     const courses = Array.from({ length: faker.number.int({ min: 2, max: 5 }) }, () => ({
       id: faker.number.int({ min: 1, max: 999 }),
       title: faker.helpers.arrayElement([
@@ -255,7 +254,7 @@ export const festivalHandlers = [
   }),
 
   // 맛집 조회
-  http.get(`${BASE_URL}/api/v1/festivals/:festivalId/restaurants`, ({ request }) => {
+  http.get(`*/api/v1/festivals/:festivalId/restaurants`, ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '0');
     const size = Number(url.searchParams.get('size') || '20');
