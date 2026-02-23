@@ -1,17 +1,25 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 import { monthlyTopFestival } from '@/apis/SWYP10BackendAPI';
 import { monthlyStaticData } from '@/constants/monthly';
 
 import FestivalCard from './_modules/festival-card';
 import HeaderImage from './_modules/header-image';
 
-export default async function MonthFestivalPage() {
-  let festivals: any[] = [];
-  try {
-    const { data } = await monthlyTopFestival();
-    festivals = data?.content ?? [];
-  } catch (e) {
-    console.error('monthlyTopFestival error:', e);
-  }
+export default function MonthFestivalPage() {
+  const [festivals, setFestivals] = useState<any[]>([]);
+
+  useEffect(() => {
+    monthlyTopFestival()
+      .then(({ data }) => {
+        setFestivals(data?.content ?? []);
+      })
+      .catch(e => {
+        console.error('monthlyTopFestival error:', e);
+      });
+  }, []);
 
   const staticData = () => {
     const currentMonth = String(new Date().getMonth() + 1);
