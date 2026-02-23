@@ -23,7 +23,6 @@ export const getCurrentLocation = (): Promise<[number, number]> => {
 
     const successCallback = (position: GeolocationPosition) => {
       const { latitude, longitude } = position.coords;
-      console.log('현재 위치 가져오기 성공:', { latitude, longitude });
       resolve([latitude, longitude]);
     };
 
@@ -47,7 +46,6 @@ export const getCurrentLocation = (): Promise<[number, number]> => {
       console.error(errorMessage, error);
 
       if (GEOLOCATION_CONFIG.fallbackToDefault) {
-        console.log('기본 위치로 대체합니다');
         resolve(DEFAULT_LOCATION);
       } else {
         reject(new Error(errorMessage));
@@ -67,14 +65,12 @@ export const getCurrentLocationWithPermission = async (): Promise<
   [number, number]
 > => {
   try {
-    // 권한 상태 확인
     if ('permissions' in navigator) {
       const permission = await navigator.permissions.query({
         name: 'geolocation',
       });
 
       if (permission.state === 'denied') {
-        console.log('위치 정보 권한이 거부됨');
         return DEFAULT_LOCATION;
       }
     }
@@ -86,18 +82,19 @@ export const getCurrentLocationWithPermission = async (): Promise<
   }
 };
 
-// 지도 경계 데이터 생성
-export const createMapBounds = (bounds: naver.maps.LatLngBounds): MapBounds => {
-  const sw = bounds.getMin();
-  const ne = bounds.getMax();
-  const nw = new window.naver.maps.LatLng(ne.y, sw.x);
-  const se = new window.naver.maps.LatLng(sw.y, ne.x);
+// Leaflet bounds에서 MapBounds 생성
+export const createMapBoundsFromLeaflet = (bounds: {
+  getSouthWest: () => { lat: number; lng: number };
+  getNorthEast: () => { lat: number; lng: number };
+}): MapBounds => {
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
 
   return {
-    sw: { lat: sw.y, lng: sw.x },
-    ne: { lat: ne.y, lng: ne.x },
-    nw: { lat: nw.lat(), lng: nw.lng() },
-    se: { lat: se.lat(), lng: se.lng() },
+    sw: { lat: sw.lat, lng: sw.lng },
+    ne: { lat: ne.lat, lng: ne.lng },
+    nw: { lat: ne.lat, lng: sw.lng },
+    se: { lat: sw.lat, lng: ne.lng },
   };
 };
 

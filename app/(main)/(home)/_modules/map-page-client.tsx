@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
+import type { Map as LeafletMap } from 'leaflet';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { FilterChip, SelectedChip } from '@/components/filter-chip';
@@ -17,9 +18,6 @@ import { getCurrentLocationWithPermission } from '@/utils/mapUtils';
 import MapBottomFilter from './map-bottom-filter';
 import MapFestivalList from './map-festival-list';
 import NaverMap from './naver-map';
-
-// 상수 정의
-// const CURRENT_LOCATION_ZOOM = 15;
 
 // value를 label로 매핑하는 유틸리티 함수
 const getLabelFromValue = (key: string, value: string): string => {
@@ -57,7 +55,7 @@ export default function MapPageClient({
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const mapInstanceRef = useRef<naver.maps.Map | null>(null);
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showToast, setShowToast] = useState(false);
 
@@ -66,7 +64,6 @@ export default function MapPageClient({
     festivals = [],
     isLoadingFestivals,
     loadFestivalsInBounds: loadFestivals,
-    // reloadWithCurrentQueryParams,
     reloadWithNewQueryParams,
     updateBookmarkStatus,
   } = useFestivalData(
@@ -83,44 +80,36 @@ export default function MapPageClient({
     };
   }, [searchParams]);
 
-  // console.log('currentQueryParams::::::', currentQueryParams);
-
   // 내 주변 토글 핸들러
   const handleNearByToggle = useCallback(async () => {
     const params = new URLSearchParams(searchParams.toString());
     const currentIsNearBy = params.get('isNearBy') === 'true';
 
     if (!currentIsNearBy) {
-      // 내 주변 활성화 시 현재 위치로 이동
       try {
         setToastMessage('현재 위치를 가져오는 중...');
         setShowToast(true);
 
         const currentLocation = await getCurrentLocationWithPermission();
         if (currentLocation) {
-          // URL 파라미터 업데이트
           params.set('isNearBy', 'true');
-          params.set('mapX', currentLocation[1].toString()); // 경도
-          params.set('mapY', currentLocation[0].toString()); // 위도
-          params.set('zoom', '15'); // 현재 위치 시 적절한 줌 레벨
+          params.set('mapX', currentLocation[1].toString());
+          params.set('mapY', currentLocation[0].toString());
+          params.set('zoom', '15');
 
           router.replace(`?${params.toString()}`, { scroll: false });
 
-          // 지도 인스턴스가 있다면 즉시 이동
+          // Leaflet 지도 인스턴스로 이동
           if (mapInstanceRef.current) {
-            const newCenter = new window.naver.maps.LatLng(
-              currentLocation[0],
-              currentLocation[1],
+            mapInstanceRef.current.setView(
+              [currentLocation[0], currentLocation[1]],
+              15,
             );
-            mapInstanceRef.current.setCenter(newCenter);
-            mapInstanceRef.current.setZoom(15);
-            console.log('현재 위치로 지도 이동:', currentLocation);
           }
 
           setToastMessage('현재 위치로 이동했습니다!');
           setTimeout(() => setShowToast(false), 2000);
         } else {
-          // 현재 위치 가져오기 실패 시 기본값으로 설정
           params.set('isNearBy', 'true');
           router.replace(`?${params.toString()}`, { scroll: false });
 
@@ -136,7 +125,6 @@ export default function MapPageClient({
         setTimeout(() => setShowToast(false), 3000);
       }
     } else {
-      // 내 주변 비활성화 시 기본 위치로 이동
       params.delete('isNearBy');
       params.delete('mapX');
       params.delete('mapY');
@@ -179,10 +167,13 @@ export default function MapPageClient({
   );
 
   // 지도 인스턴스 준비 완료 핸들러
-  const handleMapInstanceReady = useCallback((mapInstance: naver.maps.Map) => {
-    console.log('지도 인스턴스 준비 완료');
-    mapInstanceRef.current = mapInstance;
-  }, []);
+  const handleMapInstanceReady = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (mapInstance: any) => {
+      mapInstanceRef.current = mapInstance as LeafletMap;
+    },
+    [],
+  );
 
   // 경계 내 축제 로드 핸들러
   const handleLoadFestivalsInBounds = useCallback(
@@ -197,9 +188,7 @@ export default function MapPageClient({
   // 북마크 제거 핸들러
   const handleBookmarkRemove = useCallback(
     (removedBookmarkId: number) => {
-      // 지도에서 해당 축제 마커의 북마크 상태 업데이트
       updateBookmarkStatus(removedBookmarkId, false);
-      console.log('북마크 제거됨:', removedBookmarkId);
     },
     [updateBookmarkStatus],
   );
@@ -245,7 +234,6 @@ export default function MapPageClient({
         </div>
 
         <NaverMap
-          // 상세 페이지에서 넘어온 좌표/줌/포커스 ID 반영
           initialCenter={initCenter}
           initialZoom={
             initialParams.zoom ? parseInt(initialParams.zoom) : undefined
@@ -269,7 +257,6 @@ export default function MapPageClient({
         onBookmarkRemove={handleBookmarkRemove}
       />
 
-      {/* 간단한 토스트 메시지 */}
       {showToast && (
         <div className='fixed top-20 left-1/2 z-50 -translate-x-1/2 transform rounded-lg bg-blue-600 px-4 py-2 text-white shadow-lg'>
           {toastMessage}

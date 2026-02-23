@@ -251,3 +251,22 @@
   transform: scale(1.05);
   z-index: 1000;
 }
+
+/* Leaflet divIcon 기본 스타일 제거 */
+.festival-marker-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Leaflet 지도 z-index 조정 */
+.leaflet-container {
+  z-index: 0;
+}
+
+.leaflet-pane {
+  z-index: 1;
+}
+
+.leaflet-control {
+  z-index: 5;
+}

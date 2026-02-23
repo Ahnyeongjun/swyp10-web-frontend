@@ -1,4 +1,4 @@
-import { ZOOM_THRESHOLD } from '@/constants/mapConfig';
+import { MARKER_SIZES, ZOOM_THRESHOLD } from '@/constants/mapConfig';
 import themeList from '@/constants/themeList';
 import type { Festival } from '@/types/map';
 
@@ -22,7 +22,7 @@ const MARKER_ICONS = {
 } as const;
 
 // 상세 마커 HTML 생성
-export const createDetailedMarkerHTML = (
+const createDetailedMarkerHTML = (
   festival: Festival,
   theme: { bgColor: string; color: string; label: string },
 ): string => {
@@ -51,7 +51,7 @@ export const createDetailedMarkerHTML = (
 };
 
 // 간단한 마커 HTML 생성
-export const createSimpleMarkerHTML = (theme: {
+const createSimpleMarkerHTML = (theme: {
   image: string;
   label: string;
 }): string => {
@@ -72,24 +72,64 @@ export const createSimpleMarkerHTML = (theme: {
   `;
 };
 
-// 축제에 대한 마커 HTML 가져오기 (Leaflet divIcon용)
-export const getFestivalMarkerHTML = (
-  festival: Festival,
-  currentZoom: number,
-): string => {
-  const theme = themeList.find(t => t.type === festival.theme) || themeList[5];
-  const isDetailed = currentZoom >= ZOOM_THRESHOLD || festival.isDetailed;
-
-  if (isDetailed) {
-    return createDetailedMarkerHTML(festival, theme);
-  }
-  return createSimpleMarkerHTML(theme);
+// 마커 스타일 생성
+const createMarkerStyles = (): string => {
+  return `
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  `;
 };
 
-// 마커가 상세인지 여부
-export const isDetailedMarker = (
+export const createFestivalMarker = (
   festival: Festival,
   currentZoom: number,
-): boolean => {
-  return currentZoom >= ZOOM_THRESHOLD || !!festival.isDetailed;
+  onClick: (festival: Festival, isDetailed: boolean) => void,
+): naver.maps.Marker | null => {
+  if (!window.naver?.maps) return null;
+
+  // 테마 정보 찾기
+  const theme = themeList.find(t => t.type === festival.theme) || themeList[5];
+
+  // 마커 위치 설정
+  const position = new window.naver.maps.LatLng(festival.map_y, festival.map_x);
+
+  // 상세 마커 여부 결정
+  const isDetailed = currentZoom >= ZOOM_THRESHOLD || festival.isDetailed;
+
+  // 마커 요소 생성
+  const markerElement = document.createElement('div');
+  markerElement.className = 'festival-marker';
+  markerElement.style.cssText = createMarkerStyles();
+
+  // 마커 타입에 따른 HTML 설정
+  if (isDetailed) {
+    markerElement.innerHTML = createDetailedMarkerHTML(festival, theme);
+  } else {
+    markerElement.innerHTML = createSimpleMarkerHTML(theme);
+  }
+
+  // 마커 앵커 포인트 설정
+  const anchorX = isDetailed
+    ? MARKER_SIZES.detailed.anchorX
+    : MARKER_SIZES.simple.anchorX;
+  const anchorY = isDetailed
+    ? MARKER_SIZES.detailed.anchorY
+    : MARKER_SIZES.simple.anchorY;
+
+  // 네이버 지도 마커 생성
+  const marker = new window.naver.maps.Marker({
+    position,
+    icon: {
+      content: markerElement,
+      anchor: new window.naver.maps.Point(anchorX, anchorY),
+    },
+  });
+
+  // 클릭 이벤트 리스너 추가
+  window.naver.maps.Event.addListener(marker, 'click', () => {
+    onClick(festival, isDetailed || false);
+  });
+
+  return marker;
 };

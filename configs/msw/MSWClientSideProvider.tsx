@@ -4,12 +4,25 @@ import { PropsWithChildren, useLayoutEffect } from 'react';
 
 import { setupWorker } from 'msw/browser';
 
-import { getHealthCheck } from '@/mocks/api';
+import {
+  authHandlers,
+  batchHandlers,
+  festivalHandlers,
+  mypageHandlers,
+  searchHandlers,
+} from '@/mocks/api';
 
 import { MSWIgnoreDevResources, globalDelay } from './MSWConfig';
 
 const initializeMSWOnClient = () => {
-  const handlers = [globalDelay, ...getHealthCheck];
+  const handlers = [
+    globalDelay,
+    ...festivalHandlers,
+    ...authHandlers,
+    ...mypageHandlers,
+    ...searchHandlers,
+    ...batchHandlers,
+  ];
 
   const worker = setupWorker(...handlers);
 
