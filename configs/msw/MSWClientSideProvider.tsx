@@ -37,9 +37,7 @@ const initializeMSWOnClient = () => {
 export const MSWClientSideProvider = ({ children }: PropsWithChildren) => {
   // NOTE: 모든 자식 useEffect 보다 우선 호출
   useLayoutEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      initializeMSWOnClient();
-    }
+    initializeMSWOnClient();
   }, []);
 
   return <>{children}</>;
